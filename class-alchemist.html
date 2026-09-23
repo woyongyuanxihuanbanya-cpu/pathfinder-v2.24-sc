@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+<meta charset=utf-8>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>炼金术士法术速查表</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font:14px/1.65 "Microsoft YaHei","微软雅黑","PingFang SC","Hiragino Sans GB",Arial,Helvetica,sans-serif;
+  color:#24292f;background:#f6f7fb;
+}
+a{color:#5b3fd6;text-decoration:none}
+a:hover{color:#3f27a8;text-decoration:underline}
+
+/* 顶部标题区 */
+.hdr{
+  background:linear-gradient(135deg,#5b3fd6 0%,#7a5cf0 55%,#9a7bff 100%);
+  color:#fff;padding:16px 24px 14px;
+}
+.hdr h1{margin:0;font-size:21px;font-weight:700;letter-spacing:.5px}
+.hdr h1 small{font-size:12px;font-weight:400;opacity:.85;margin-left:8px;letter-spacing:0}
+.hdr .sub{margin-top:5px;font-size:12px;opacity:.9}
+.hdr .sub b{font-weight:600}
+
+/* 面板 */
+.panel{background:#fff;border:1px solid #e4e6ef;border-radius:8px;margin:14px 16px;padding:12px 14px}
+.panel.tbl{padding:0;overflow:visible}
+.toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  padding:12px 14px;border-bottom:1px solid #eceef5;background:#fbfbff;
+  border-radius:8px 8px 0 0;position:sticky;top:0;z-index:20;
+}
+#input{
+  flex:1 1 260px;min-width:200px;padding:8px 12px;font-size:14px;
+  border:1px solid #cfd3e2;border-radius:6px;background:#fff;color:#24292f;
+}
+#input:focus{outline:none;border-color:#7a5cf0;box-shadow:0 0 0 3px rgba(122,92,240,.15)}
+.btn{
+  padding:7px 14px;font-size:13px;border-radius:6px;cursor:pointer;
+  border:1px solid #cfd3e2;background:#fff;color:#3d4257;
+}
+.btn:hover{border-color:#7a5cf0;color:#5b3fd6}
+.btn.pri{background:#5b3fd6;border-color:#5b3fd6;color:#fff;font-weight:600}
+.btn.pri:hover{background:#4a2fbd;color:#fff}
+#count{margin-left:auto;font-size:13px;color:#6b7280;white-space:nowrap}
+#count b{color:#5b3fd6;font-weight:700}
+
+/* 筛选区 */
+#filterDiv{padding:12px 14px 4px;display:block}
+.fgroup{border:0;border-top:1px solid #eceef5;margin:0;padding:7px 0 9px}
+.fgroup:first-child{border-top:0}
+.fgroup legend{
+  font-size:12.5px;font-weight:700;color:#4b32a3;
+  padding:0 8px 0 0;letter-spacing:.5px;
+}
+.fgroup .allbtn{
+  font-size:12px;padding:2px 9px;margin:0 8px 0 0;border-radius:5px;
+  border:1px solid #d9dcea;background:#f6f7fb;color:#5b6274;cursor:pointer;
+}
+.fgroup .allbtn:hover{border-color:#7a5cf0;color:#5b3fd6;background:#f1edff}
+.fgroup label{
+  display:inline-block;margin:2px 10px 2px 0;white-space:nowrap;
+  font-size:13px;color:#3d4257;cursor:pointer;
+}
+.fgroup input[type=checkbox]{vertical-align:-1px;margin-right:3px;cursor:pointer}
+.fgroup label:hover{color:#5b3fd6}
+
+/* 数据表 */
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+th,td{padding:6px 8px;text-align:center;border-bottom:1px solid #f0f1f6;vertical-align:middle}
+thead th{
+  background:#f1edff;color:#4b32a3;font-weight:700;font-size:12.5px;
+  white-space:nowrap;border-bottom:1px solid #ddd6fb;position:sticky;top:0;z-index:10;
+}
+thead th:first-child{text-align:left;padding-left:14px}
+tbody td.name{text-align:left;padding-left:14px;max-width:280px}
+tbody tr:nth-child(even) td{background:#fafbff}
+tbody tr:hover td{background:#f3efff}
+td.lv,td.school,td.time,td.range,td.save,td.sr,td.book{white-space:nowrap}
+td.lv{font-weight:600;color:#4b32a3}
+td.name a{font-weight:600}
+.small{color:#8b90a1;font-size:12px;font-weight:400}
+.mono{font-size:12px;color:#6b7280}
+.foot{padding:10px 16px 22px;font-size:12px;color:#8b90a1;line-height:1.8}
+.foot code{background:#eef0f7;padding:1px 5px;border-radius:4px;color:#4b32a3}
+
+/* 专长速查补充：长文本列左对齐 */
+tbody td.txt{text-align:left;line-height:1.55}
+tbody td.txt.pre{color:#4b5563}
+.note{padding:0 16px 8px;font-size:12px;color:#8b90a1}
+</style>
+<script>
+var DSH = {
+  all: function () { return Array.prototype.slice.call(document.getElementsByTagName("tr")); },
+  chosen: function (name) {
+    var cb = document.getElementsByName(name), out = [];
+    for (var i = 0; i < cb.length; i++) if (cb[i].checked) out.push(cb[i].value);
+    return out;
+  },
+  hasAny: function (tags, list) {
+    if (!list.length) return false;
+    // 必须按「空格分隔的完整词元」比较：子串匹配会让 来源:UC 命中 来源:UCa、
+    // 描述符:火 命中 描述符:火或水
+    var padded = " " + tags + " ";
+    for (var i = 0; i < list.length; i++) if (padded.indexOf(" " + list[i] + " ") !== -1) return true;
+    return false;
+  }
+};
+function search() {
+  var inputEl = document.getElementById("input");
+  var raw = inputEl && inputEl.value ? inputEl.value : "";
+  var keyword = raw.toLowerCase().replace(/^[s　]+|[s　]+$/g, "");
+  var groups = ["level", "school", "class", "source", "time", "comp", "special", "descriptor", "save", "range", "sr"];
+  // 组名 -> 行标签前缀（标签用的是中文前缀，必须映射，否则永远匹配不上）
+  var TAG = {
+    level: "环阶", school: "学派", class: "职业", source: "来源", time: "时间",
+    comp: "成分", special: "特殊", descriptor: "描述符", save: "豁免", range: "距离", sr: "抗力"
+  };
+  var sel = {};
+  for (var g = 0; g < groups.length; g++) sel[groups[g]] = DSH.chosen(groups[g]);
+  // 「职业 + 环阶」按交叉语义：同时勾选时，要求存在某个「职业(简称)环阶」精确配对
+  // 两种页面都适用：主表用全局配对标签；职业页只用本职业的配对标签（由 selfClassAb 指定）
+  // 特例：「无职业信息」的法术（原文未标注职业/环阶）没有配对标签，
+  //        勾选该项时退回按它自己的「环阶」标签判断，否则默认全选状态下这类法术会被全部挡掉
+  function checkPairs(tags, pairs) {
+    if (!pairs.length) return true;
+    var padded = " " + tags + " ";
+    for (var p = 0; p < pairs.length; p++) {
+      if (padded.indexOf(" 阶:" + pairs[p].cls + pairs[p].lv + " ") !== -1) return true;
+      if (pairs[p].cls === "无职业信息"
+        && padded.indexOf(" 职业:无职业信息 ") !== -1
+        && padded.indexOf(" 环阶:" + pairs[p].lv + " ") !== -1) return true;
+    }
+    return false;
+  }
+  var pairs = [];
+  if (sel["class"] && sel["class"].length && sel["level"] && sel["level"].length) {
+    for (var a = 0; a < sel["class"].length; a++) {
+      for (var b = 0; b < sel["level"].length; b++) {
+        pairs.push({ cls: sel["class"][a], lv: sel["level"][b] });
+      }
+    }
+  } else if ((DSH.selfClassAb || DSH.selfClass) && sel["level"] && sel["level"].length) {
+    var sc = DSH.selfClassAb || DSH.selfClass;
+    for (var b2 = 0; b2 < sel["level"].length; b2++) pairs.push({ cls: sc, lv: sel["level"][b2] });
+  }
+  var rows = DSH.all();
+  var shown = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var tr = rows[i];
+    var tags = tr.getAttribute("tags");
+    if (tags === null) continue;            // 表头
+    var ok = true;
+    if (keyword) {
+      var hay = (tr.getAttribute("spell") || "") + " " + (tr.getAttribute("trad") || "") + " " + (tr.getAttribute("en") || "");
+      if (hay.toLowerCase().indexOf(keyword) === -1) ok = false;
+    }
+    if (ok) {
+      for (var g = 0; g < groups.length; g++) {
+        var name = groups[g];
+        if (pairs.length && (name === "class" || name === "level")) continue;  // 交由配对判断
+        var list = sel[name];
+        if (!list.length) continue;          // 该分类未勾选任何项 -> 不参与过滤
+        // 必须用中文标签前缀：行标签是「前缀:取值」形式
+        var want = [];
+        for (var q = 0; q < list.length; q++) want.push(TAG[name] + ":" + list[q]);
+        if (!DSH.hasAny(tags, want)) { ok = false; break; }
+      }
+    }
+    if (ok && pairs.length && !checkPairs(tags, pairs)) ok = false;
+    tr.style.display = ok ? "" : "none";
+    if (ok) shown++;
+  }
+  document.getElementById("count").innerHTML = "显示 <b>" + shown + "</b> / " + (rows.length - 1) + " 条";
+}
+function select_all(type_name) {
+  var cb = document.getElementsByName(type_name);
+  var all = true;
+  for (var i = 0; i < cb.length && all; i++) if (!cb[i].checked) all = false;
+  for (var i = 0; i < cb.length; i++) cb[i].checked = !all;
+  search();
+}
+function none_all(type_name) {
+  var cb = document.getElementsByName(type_name);
+  for (var i = 0; i < cb.length; i++) cb[i].checked = false;
+  search();
+}
+function toggleVisibility() {
+  var div = document.getElementById("filterDiv");
+  var btn = document.getElementById("toggleBtn");
+  var hidden = (div.style.display === "none") || (div.offsetHeight === 0);
+  if (hidden) { div.style.display = "block"; btn.innerText = "隐藏筛选"; }
+  else { div.style.display = "none"; btn.innerText = "显示筛选"; }
+}
+function resetAll() {
+  var cb = document.getElementsByTagName("input");
+  for (var i = 0; i < cb.length; i++) if (cb[i].type === "checkbox") cb[i].checked = true;
+  document.getElementById("input").value = "";
+  search();
+}
+</script>
+</head>
+<body>
+<div class="hdr">
+  <h1>炼金术士法术速查表<small>51 条</small></h1>
+  <div class="sub"><a href="spellindex.html" style="color:#fff;text-decoration:underline">&#8592; 返回万法大全速查表</a></div>
+</div>
+<script>DSH.selfClass = "炼金术士"; DSH.selfClassAb = "炼";</script>
+
+<div class="panel tbl">
+  <div class="toolbar">
+    <input id="input" placeholder="搜索法术名（简 / 繁 / 英文均可）…" onkeyup="if(event.keyCode===13)search()">
+    <button type="button" class="btn pri" onclick="search()">搜索</button>
+    <button type="button" class="btn" onclick="toggleVisibility()" id="toggleBtn">隐藏筛选</button>
+    <span id="count"></span>
+  </div>
+  <div id="filterDiv"><fieldset class="fgroup"><legend>本职业环阶</legend><button type="button" class="allbtn" onclick="select_all('level')">全选</button><button type="button" class="allbtn" onclick="none_all('level')">全不选</button><input type="checkbox" id="level_0" name="level" value="1" checked><label for="level_0">1环</label><input type="checkbox" id="level_1" name="level" value="2" checked><label for="level_1">2环</label><input type="checkbox" id="level_2" name="level" value="3" checked><label for="level_2">3环</label><input type="checkbox" id="level_3" name="level" value="4" checked><label for="level_3">4环</label><input type="checkbox" id="level_4" name="level" value="5" checked><label for="level_4">5环</label><input type="checkbox" id="level_5" name="level" value="6" checked><label for="level_5">6环</label></fieldset><fieldset class="fgroup"><legend>学派</legend><button type="button" class="allbtn" onclick="select_all('school')">全选</button><button type="button" class="allbtn" onclick="none_all('school')">全不选</button><input type="checkbox" id="school_0" name="school" value="防护" checked><label for="school_0">防护</label><input type="checkbox" id="school_1" name="school" value="咒法" checked><label for="school_1">咒法</label><input type="checkbox" id="school_2" name="school" value="预言" checked><label for="school_2">预言</label><input type="checkbox" id="school_3" name="school" value="惑控" checked><label for="school_3">惑控</label><input type="checkbox" id="school_4" name="school" value="塑能" checked><label for="school_4">塑能</label><input type="checkbox" id="school_5" name="school" value="幻术" checked><label for="school_5">幻术</label><input type="checkbox" id="school_6" name="school" value="死灵" checked><label for="school_6">死灵</label><input type="checkbox" id="school_7" name="school" value="变化" checked><label for="school_7">变化</label><input type="checkbox" id="school_8" name="school" value="未标注" checked><label for="school_8">未标注</label></fieldset><fieldset class="fgroup"><legend>来源书</legend><button type="button" class="allbtn" onclick="select_all('source')">全选</button><button type="button" class="allbtn" onclick="none_all('source')">全不选</button><input type="checkbox" id="source_0" name="source" value="ARG" checked><label for="source_0">ARG · 进阶种族手册</label><input type="checkbox" id="source_1" name="source" value="ACG" checked><label for="source_1">ACG · 进化职业手册</label><input type="checkbox" id="source_2" name="source" value="UC" checked><label for="source_2">UC · 极限战斗</label><input type="checkbox" id="source_3" name="source" value="OA" checked><label for="source_3">OA · 异能魔法</label><input type="checkbox" id="source_4" name="source" value="UI" checked><label for="source_4">UI · 极限诡道</label><input type="checkbox" id="source_5" name="source" value="ISM" checked><label for="source_5">ISM · 内海魔法</label><input type="checkbox" id="source_6" name="source" value="ISWG" checked><label for="source_6">ISWG · 内海世界指南</label><input type="checkbox" id="source_7" name="source" value="ISG" checked><label for="source_7">ISG · 内海诸神</label></fieldset></div>
+  <table>
+  <thead>
+    <tr><th class="thname">法术名</th><th>环阶</th><th>学派</th><th>时间</th><th>距离</th><th>持续时间</th><th>豁免</th><th>来源</th></tr>
+  </thead>
+  <tbody>
+<tr tags="学派:幻术 描述符:无描述符 时间:标准动作 距离:个人 来源:ARG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="融境迷彩" trad="融境迷彩" en="Blend"><td class="name"><a href="Spell%20ARG.lookup.html#sp-Blend">融境迷彩 Blend</a></td><td class="lv">1环</td><td class="school">幻术</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级</td><td class="save">—</td><td class="book">ARG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:反射 抗力:否 环阶:2 阶:炼2" spell="凝胶之血" trad="凝胶之血" en="Adhesive Blood"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Adhesive_Blood">凝胶之血 Adhesive Blood</a></td><td class="lv">2环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">反射，通过则无效（见后文）</td><td class="book">ACG</td></tr>
+<tr tags="学派:咒法 描述符:无描述符 时间:标准动作 距离:特殊 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:反射 抗力:否 环阶:1 阶:炼1" spell="黏性唾液" trad="黏性唾液" en="Adhesive Spittle"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Adhesive_Spittle">黏性唾液 Adhesive Spittle</a></td><td class="lv">1环</td><td class="school">咒法</td><td class="time">标准动作</td><td class="range">15尺</td><td>1轮/等级 或 直至耗散（见后文）</td><td class="save">反射，通过则部分生效</td><td class="book">ACG</td></tr>
+<tr tags="学派:幻术 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="可调易容术" trad="可调易容术" en="Adjustable Disguise"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Adjustable_Disguise">可调易容术 Adjustable Disguise</a></td><td class="lv">3环</td><td class="school">幻术</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:4 阶:炼4" spell="可调变身术" trad="可调变身术" en="Adjustable Polymorph"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Adjustable_Polymorph">可调变身术 Adjustable Polymorph</a></td><td class="lv">4环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:气 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:2 阶:炼2" spell="踏风而行" trad="踏风而行" en="Air Step"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Air_Step">踏风而行 Air Step</a></td><td class="lv">2环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="足底生根" trad="足底生根" en="Anchored Step"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Anchored_Step">足底生根 Anchored Step</a></td><td class="lv">3环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="阵营视域" trad="阵营视域" en="Aura Sight"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Aura_Sight">阵营视域 Aura Sight</a></td><td class="lv">3环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:2 阶:炼2" spell="硬化血甲" trad="硬化血甲" en="Blood Armor"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Blood_Armor">硬化血甲 Blood Armor</a></td><td class="lv">2环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:接触 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:无 抗力:否 环阶:3 阶:炼3" spell="血之哨卫" trad="血之哨卫" en="Blood Sentinel"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Blood_Sentinel">血之哨卫 Blood Sentinel</a></td><td class="lv">3环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">接触</td><td>10分钟/等级</td><td class="save">无</td><td class="book">ACG</td></tr>
+<tr tags="学派:幻术 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="飘渺步伐" trad="飘渺步伐" en="Blurred Movement"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Blurred_Movement">飘渺步伐 Blurred Movement</a></td><td class="lv">1环</td><td class="school">幻术</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:电 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="活体电容" trad="活体电容" en="Body Capacitance"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Body_Capacitance">活体电容 Body Capacitance</a></td><td class="lv">1环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级 或 直至耗散（见后文）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:接触 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:意志 抗力:否 环阶:3 阶:炼3" spell="构装体残废术" trad="构装体残废术" en="Disable Construct"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Disable_Construct">构装体残废术 Disable Construct</a></td><td class="lv">3环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">接触</td><td>1轮/等级（可解消）</td><td class="save">意志，通过则无效</td><td class="book">ACG</td></tr>
+<tr tags="学派:防护 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:4 阶:炼4" spell="迫退附魔" trad="迫退附魔" en="Enchantment Foil"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Enchantment_Foil">迫退附魔 Enchantment Foil</a></td><td class="lv">4环</td><td class="school">防护</td><td class="time">标准动作</td><td class="range">个人</td><td>1小时/等级（见后文）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:2 阶:炼2" spell="极度柔韧" trad="极度柔韧" en="Extreme Flexibility"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Extreme_Flexibility">极度柔韧 Extreme Flexibility</a></td><td class="lv">2环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:4 阶:炼4" spell="虚空之眼" trad="虚空之眼" en="Eyes of The Void"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Eyes_of_The_Void">虚空之眼 Eyes of The Void</a></td><td class="lv">4环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:2 阶:炼2" spell="监察焦点" trad="监察焦点" en="Focused Scrutiny"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Focused_Scrutiny">监察焦点 Focused Scrutiny</a></td><td class="lv">2环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:法器 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="强化认知" trad="强化认知" en="Heightened Awareness"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Heightened_Awareness">强化认知 Heightened Awareness</a></td><td class="lv">1环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:惑控 描述符:影响心灵 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:2 阶:炼2" spell="探究精神" trad="探究精神" en="Investigative Mind"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Investigative_Mind">探究精神 Investigative Mind</a></td><td class="lv">2环</td><td class="school">惑控</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级 或直至耗散</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:防护 描述符:无描述符 时间:未标注 距离:未标注 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="反隐警报" trad="反隐警报" en="Invisibility Alarm"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Invisibility_Alarm">反隐警报 Invisibility Alarm</a></td><td class="lv">1环</td><td class="school">防护</td><td class="time">—</td><td class="range">—</td><td>10分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="长臂咒" trad="长臂咒" en="Long Arm"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Long_Arm">长臂咒 Long Arm</a></td><td class="lv">1环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="猴爪鱼鳍" trad="猴爪鱼鳍" en="Monkey Fish"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Monkey_Fish">猴爪鱼鳍 Monkey Fish</a></td><td class="lv">1环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:咒法 描述符:毒素 时间:标准动作 距离:中距 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:强韧 豁免:无 抗力:否 环阶:3 阶:炼3" spell="臭气四溢" trad="臭气四溢" en="Nauseating Trail"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Nauseating_Trail">臭气四溢 Nauseating Trail</a></td><td class="lv">3环</td><td class="school">咒法</td><td class="time">标准动作</td><td class="range">中距</td><td>1轮/等级</td><td class="save">无 和 强韧，通过则无效（见后文）</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:法器 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:4 阶:炼4" spell="恒久活力" trad="恒久活力" en="Persistent Vigor"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Persistent_Vigor">恒久活力 Persistent Vigor</a></td><td class="lv">4环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1轮/等级（可解消）</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:死灵 描述符:无描述符 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="虚幻之血" trad="虚幻之血" en="Phantom Blood"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Phantom_Blood">虚幻之血 Phantom Blood</a></td><td class="lv">1环</td><td class="school">死灵</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:变化 描述符:音波 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:6 阶:炼6" spell="音波形态" trad="音波形态" en="Sonic Form"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Sonic_Form">音波形态 Sonic Form</a></td><td class="lv">6环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1轮/等级</td><td class="save">—</td><td class="book">ACG</td></tr>
+<tr tags="学派:塑能 描述符:光亮 时间:标准动作 距离:个人 来源:ACG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:反射 豁免:无 抗力:否 抗力:可 环阶:4 阶:炼4" spell="刺目强光" trad="刺目强光" en="Unbearable Brightness"><td class="name"><a href="Spell%20ACG.lookup.html#sp-Unbearable_Brightness">刺目强光 Unbearable Brightness</a></td><td class="lv">4环</td><td class="school">塑能</td><td class="time">标准动作</td><td class="range">个人 和 30尺（见后文）</td><td>1轮/等级</td><td class="save">无 和 反射，通过则部分生效（见后文）</td><td class="book">ACG</td></tr>
+<tr tags="学派:未标注 描述符:无描述符 时间:未标注 距离:未标注 来源:UC 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="共用延迟毒发" trad="共用延迟毒发" en="Delay Poison, Communal"><td class="name"><a href="Spell%20UC.lookup.html#sp-Delay_Poison_Communal">共用延迟毒发 Delay Poison, Communal</a></td><td class="lv">3环</td><td class="school">—</td><td class="time">—</td><td class="range">—</td><td>—</td><td class="save">—</td><td class="book">UC</td></tr>
+<tr tags="学派:死灵 描述符:无描述符 时间:标准动作 距离:接触 来源:OA 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:无 抗力:可 环阶:2 阶:炼2" spell="肉体僵直" trad="肉体僵直" en="Catatonia"><td class="name"><a href="Spell%20OA.lookup.html#sp-Catatonia">肉体僵直 Catatonia</a></td><td class="lv">2环</td><td class="school">死灵</td><td class="time">标准动作</td><td class="range">接触</td><td>1小时/等级（可解消）</td><td class="save">无</td><td class="book">OA</td></tr>
+<tr tags="学派:防护 描述符:影响心灵 时间:标准动作 距离:个人 来源:OA 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:意志 抗力:可 环阶:2 阶:炼2" spell="遮盖思想" trad="遮盖思想" en="Enshroud Thoughts"><td class="name"><a href="Spell%20OA.lookup.html#sp-Enshroud_Thoughts">遮盖思想 Enshroud Thoughts</a></td><td class="lv">2环</td><td class="school">防护</td><td class="time">标准动作</td><td class="range">个人</td><td>10分钟/等级（可解消）</td><td class="save">意志，通过则无效（无害）</td><td class="book">OA</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:OA 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="极化认知" trad="极化认知" en="Hypercognition"><td class="name"><a href="Spell%20OA.lookup.html#sp-Hypercognition">极化认知 Hypercognition</a></td><td class="lv">3环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>见后文</td><td class="save">—</td><td class="book">OA</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:UI 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:1 阶:炼1" spell="即刻变装" trad="即刻变装" en="Fabricate Disguise"><td class="name"><a href="Spell%20UI.lookup.html#sp-Fabricate_Disguise">即刻变装 Fabricate Disguise</a></td><td class="lv">1环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>立即</td><td class="save">—</td><td class="book">UI</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:UI 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:5 阶:炼5" spell="一窥真实" trad="一窥真实" en="Glimpse of Truth"><td class="name"><a href="Spell%20UI.lookup.html#sp-Glimpse_of_Truth">一窥真实 Glimpse of Truth</a></td><td class="lv">5环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>1轮</td><td class="save">—</td><td class="book">UI</td></tr>
+<tr tags="学派:死灵 描述符:毒素 时间:标准动作 距离:接触 来源:UI 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:强韧 抗力:可 环阶:2 阶:炼2" spell="惰性猛毒" trad="惰性猛毒" en="Languid Venom"><td class="name"><a href="Spell%20UI.lookup.html#sp-Languid_Venom">惰性猛毒 Languid Venom</a></td><td class="lv">2环</td><td class="school">死灵</td><td class="time">标准动作</td><td class="range">接触</td><td>永久 直至耗尽（可解消）</td><td class="save">强韧，通过则无效</td><td class="book">UI</td></tr>
+<tr tags="学派:防护 描述符:无描述符 时间:标准动作 距离:接触 来源:UI 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:无 抗力:否 环阶:1 阶:炼1" spell="无影之毒" trad="无影之毒" en="Obscure Poison"><td class="name"><a href="Spell%20UI.lookup.html#sp-Obscure_Poison">无影之毒 Obscure Poison</a></td><td class="lv">1环</td><td class="school">防护</td><td class="time">标准动作</td><td class="range">接触</td><td>1小时/等级</td><td class="save">无</td><td class="book">UI</td></tr>
+<tr tags="学派:幻术 描述符:音波 时间:标准动作 距离:近距 来源:UI 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:专注 特殊:非领域法术 豁免:意志 抗力:否 环阶:2 阶:炼2" spell="音源切替" trad="音源切替" en="Shifted Steps"><td class="name"><a href="Spell%20UI.lookup.html#sp-Shifted_Steps">音源切替 Shifted Steps</a></td><td class="lv">2环</td><td class="school">幻术</td><td class="time">标准动作</td><td class="range">近距（25尺 + 5尺/2级）</td><td>专注 + 1轮/等级（可解消）</td><td class="save">意志，通过则无效（无害）和 意志，通过则不相信（若有互动）；见后文</td><td class="book">UI</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:UI 成分:无言语 成分:无姿势 成分:无材料 成分:法器 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:5 阶:炼5" spell="吞毒之喉" trad="吞毒之喉" en="Swallow Poison"><td class="name"><a href="Spell%20UI.lookup.html#sp-Swallow_Poison">吞毒之喉 Swallow Poison</a></td><td class="lv">5环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1小时/等级 或 直至耗散</td><td class="save">—</td><td class="book">UI</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:10分钟 距离:个人 来源:UI 成分:无言语 成分:无姿势 成分:无材料 成分:法器 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:无 抗力:否 环阶:5 阶:炼5" spell="精确追迹术" trad="精确追迹术" en="Unerring Tracker"><td class="name"><a href="Spell%20UI.lookup.html#sp-Unerring_Tracker">精确追迹术 Unerring Tracker</a></td><td class="lv">5环</td><td class="school">预言</td><td class="time">10分钟</td><td class="range">个人</td><td>10分钟/等级</td><td class="save">无</td><td class="book">UI</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:接触 来源:UI 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:可解消 特殊:无专注 特殊:非领域法术 豁免:意志 抗力:可 环阶:3 阶:炼3" spell="丰富词藻" trad="丰富词藻" en="Voluminous Vocabulary"><td class="name"><a href="Spell%20UI.lookup.html#sp-Voluminous_Vocabulary">丰富词藻 Voluminous Vocabulary</a></td><td class="lv">3环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">接触</td><td>8小时（可解消）</td><td class="save">意志，通过则无效（无害）</td><td class="book">UI</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:接触 来源:UI 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:强韧 抗力:可 环阶:1 阶:炼1" spell="衰老之容" trad="衰老之容" en="Wizened Appearance"><td class="name"><a href="Spell%20UI.lookup.html#sp-Wizened_Appearance">衰老之容 Wizened Appearance</a></td><td class="lv">1环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">接触</td><td>1小时/等级</td><td class="save">强韧，通过则无效</td><td class="book">UI</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ISM 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="兰花之蜜" trad="兰花之蜜" en="Orchid’s Drop"><td class="name"><a href="Spell%20ISM.lookup.html#sp-Orchid_s_Drop">兰花之蜜 Orchid’s Drop</a></td><td class="lv">3环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1小时/等级</td><td class="save">—</td><td class="book">ISM</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:1分钟 距离:特殊 来源:ISM 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:无 抗力:否 环阶:2 阶:炼2" spell="刺青药剂" trad="刺青药剂" en="Tattoo Potion"><td class="name"><a href="Spell%20ISM.lookup.html#sp-Tattoo_Potion">刺青药剂 Tattoo Potion</a></td><td class="lv">2环</td><td class="school">变化</td><td class="time">1分钟</td><td class="range">一瓶药水</td><td>立即</td><td class="save">无</td><td class="book">ISM</td></tr>
+<tr tags="学派:预言 描述符:无描述符 时间:标准动作 距离:个人 来源:ISWG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:5 阶:炼5" spell="先祖的记忆" trad="先祖的记忆" en="Ancestral Memory"><td class="name"><a href="Spell%20ISWG.lookup.html#sp-Ancestral_Memory">先祖的记忆 Ancestral Memory</a></td><td class="lv">5环</td><td class="school">预言</td><td class="time">标准动作</td><td class="range">个人</td><td>一轮/等级</td><td class="save">—</td><td class="book">ISWG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ISWG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:4 阶:炼4" spell="虫类形态Ⅰ" trad="虫类形态Ⅰ" en="Vermin Shape I"><td class="name"><a href="Spell%20ISWG.lookup.html#sp-Vermin_Shape_I">虫类形态Ⅰ Vermin Shape I</a></td><td class="lv">4环</td><td class="school">变化</td><td class="time">标准动作</td><td class="range">个人</td><td>1分钟/等级</td><td class="save">—</td><td class="book">ISWG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:未标注 距离:未标注 来源:ISWG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:5 阶:炼5" spell="虫类形态Ⅱ" trad="虫类形态Ⅱ" en="Vermin Shape II"><td class="name"><a href="Spell%20ISWG.lookup.html#sp-Vermin_Shape_II">虫类形态Ⅱ Vermin Shape II</a></td><td class="lv">5环</td><td class="school">变化</td><td class="time">—</td><td class="range">—</td><td>—</td><td class="save">—</td><td class="book">ISWG</td></tr>
+<tr tags="学派:咒法 描述符:无描述符 时间:标准动作 距离:近距 来源:ISWG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:强韧 抗力:其他 环阶:2 阶:炼2" spell="拉玛什图之水" trad="拉玛什图之水" en="Waters of Lamashtu"><td class="name"><a href="Spell%20ISWG.lookup.html#sp-Waters_of_Lamashtu">拉玛什图之水 Waters of Lamashtu</a></td><td class="lv">2环</td><td class="school">咒法</td><td class="time">标准动作</td><td class="range">近距</td><td>瞬间</td><td class="save">强韧，部分有效</td><td class="book">ISWG</td></tr>
+<tr tags="学派:变化 描述符:酸 时间:标准动作 距离:个人 来源:ISG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:反射 抗力:否 环阶:4 阶:炼4" spell="腐蚀血爆" trad="腐蚀血爆" en="Caustic Blood"><td class="name"><a href="Spell%20ISG.lookup.html#sp-Caustic_Blood">腐蚀血爆 Caustic Blood</a></td><td class="lv">4环</td><td class="school">变化</td><td class="time">1个标准动作</td><td class="range">个人</td><td>1轮/等级</td><td class="save">反射通过则减半或无效（见下文）</td><td class="book">ISG</td></tr>
+<tr tags="学派:变化 描述符:无描述符 时间:标准动作 距离:个人 来源:ISG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:3 阶:炼3" spell="导引精气" trad="导引精气" en="Channel Vigor"><td class="name"><a href="Spell%20ISG.lookup.html#sp-Channel_Vigor">导引精气 Channel Vigor</a></td><td class="lv">3环</td><td class="school">变化</td><td class="time">1个标准动作</td><td class="range">个人</td><td>1轮/等级</td><td class="save">—</td><td class="book">ISG</td></tr>
+<tr tags="学派:防护 描述符:无描述符 时间:迅捷动作 距离:个人 来源:ISG 成分:无言语 成分:无姿势 成分:无材料 成分:法器 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:反射 抗力:可 抗力:见后文 环阶:1 阶:炼1" spell="暖腹火" trad="暖腹火" en="Firebelly"><td class="name"><a href="Spell%20ISG.lookup.html#sp-Firebelly">暖腹火 Firebelly</a></td><td class="lv">1环</td><td class="school">防护</td><td class="time">1个标准动作 1个迅捷动作</td><td class="range">个人 个人</td><td>1分钟/等级或消解 立即</td><td class="save">反射通过则减半，见下文</td><td class="book">ISG</td></tr>
+<tr tags="学派:死灵 描述符:疾病 描述符:邪恶 时间:标准动作 距离:接触 来源:ISG 成分:无言语 成分:无姿势 成分:无材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:强韧 抗力:可 环阶:6 阶:炼6" spell="瘟疫携带者" trad="瘟疫携带者" en="Plague Bearer"><td class="name"><a href="Spell%20ISG.lookup.html#sp-Plague_Bearer">瘟疫携带者 Plague Bearer</a></td><td class="lv">6环</td><td class="school">死灵</td><td class="time">1个标准动作</td><td class="range">接触</td><td>1轮/等级，见下文</td><td class="save">强韧通过则无效，见下文</td><td class="book">ISG</td></tr>
+<tr tags="学派:变化 描述符:邪恶 时间:轮级 距离:个人 来源:ISG 成分:无言语 成分:无姿势 成分:材料 成分:无器材 成分:无价耗 特殊:不可解消 特殊:无专注 特殊:非领域法术 豁免:未标注 抗力:未标注 环阶:5 阶:炼5" spell="换脸术" trad="换脸术" en="Transplant Visage"><td class="name"><a href="Spell%20ISG.lookup.html#sp-Transplant_Visage">换脸术 Transplant Visage</a></td><td class="lv">5环</td><td class="school">变化</td><td class="time">1轮</td><td class="range">个人</td><td>永久</td><td class="save">—</td><td class="book">ISG</td></tr>
+</tbody>
+  </table>
+</div>
+
+<div class="foot">
+  数据来源：Pathfinder 1 版繁中合集「法术」章节。本页仅为检索索引，正文一字未改；
+  点击法术名将跳转至对应的<b>原文伴生页</b>并定位到该条目。
+</div>
+<script>try { search(); } catch (e) { }</script>
+</body>
+</html>
