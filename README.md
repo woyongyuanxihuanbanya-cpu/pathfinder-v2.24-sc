@@ -1,5 +1,7 @@
 # 站点说明
 
+**线上地址：<https://woyongyuanxihuanbanya-cpu.github.io/pathfinder-v2.24-sc/>**
+
 本目录是 **Pathfinder v2.24 SC + 速查** 的静态网站版本（由 `Pathfinder-v2.24-SC-Compendium.chm` 转换而来），
 可直接作为 GitHub Pages 站点发布。
 
@@ -45,3 +47,15 @@ node ..\_build\chm\build-web.js        # 生成/更新本目录
 node ..\_build\chm\verify-web.js       # 链接与大小写校验
 node ..\_build\chm\deploy-pages.js --owner=<用户> --repo=<仓库>   # 推送并开启 Pages
 ```
+
+## 已部署信息
+
+| 项目 | 值 |
+|---|---|
+| GitHub 仓库 | `woyongyuanxihuanbanya-cpu/pathfinder-v2.24-sc`（public） |
+| Pages 源 | `main` 分支根目录，`.nojekyll` 已放置（避免 Jekyll 忽略文件） |
+| 首次构建 | Pages API 状态 `built`；10/10 探活 HTTP 200；线上内容校验 9/9 通过（合法 UTF-8、0 替换字符） |
+| 站点体积 | 302.5 MB（2201 个文件；Pages 站点上限 1 GB，单文件上限 100 MB，均在限内） |
+
+更新站点：改完文件后在本目录执行 `git add -A; git commit -m "更新"; git push`，Pages 会自动重建（约 1–2 分钟）。
+
