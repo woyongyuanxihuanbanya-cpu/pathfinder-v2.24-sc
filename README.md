@@ -35,6 +35,15 @@ Word 导出元数据引用（`_template.css`、`filelist.xml`、`themeData.thmx`
 `clip_image00N.*` 等）以及 3 条原目录的悬空条目（`$$unsavedpage1.htm`、`$$unsavedpage2.htm`、`page_1373.html`）。
 本次转换未新增任何断链，站内链接 **0 处大小写不一致**（GitHub Pages 大小写敏感）。
 
+针对这些原有断链做了两处处理，避免浏览时撞到 404：
+
+- 左侧目录里那 **3 条悬空条目**改为**不可点**，并标注「原件缺失」（原 CHM 中同样没有对应文件）；
+- 新增 **`404.html`**：GitHub Pages 对任何不存在的路径都会返回它，页面里说明了 404 的常见来源
+  （原 CHM 悬空条目 / Word 导出残留引用 / 地址缺少仓库路径），并提供回首页与三套速查的入口。
+
+> 注意：站点完整地址必须带仓库路径 —— `https://<用户名>.github.io/pathfinder-v2.24-sc/`。
+> 直接访问 `https://<用户名>.github.io/` 会 404（该账号没有用户主页仓库）。
+
 ## 版权
 
 内容来自 Pathfinder 中文合集与原译者，版权归原作者 Paizo Inc. 与各篇译者、原 CHM 制作者所有，仅供个人查阅，不作商业用途。
